@@ -1,0 +1,1347 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cover E-LKPD STEM: Sistem Ballast</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <style>
+        body {
+            background-color: #cbd5e1; /* Warna layar belakang/meja */
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* Mencegah scroll pada body */
+        }
+
+        /* --- KUNCI UTAMA LAYOUT A4 FULL SCREEN --- */
+        .a4-container {
+            background: #bae6fd; /* Warna langit dasar */
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            
+            /* Trik Matematika Kertas A4 (210 x 297) agar menyesuaikan layar */
+            height: 96vh;
+            width: calc(96vh * (210 / 297));
+            max-width: 96vw;
+            max-height: calc(96vw * (297 / 210));
+        }
+
+        /* Teks Judul E-LKPD */
+        .cover-title {
+            font-family: 'Fredoka', sans-serif;
+            font-size: clamp(3rem, 5vw + 2rem, 5rem); /* Ukuran teks dinamis */
+            color: white;
+            -webkit-text-stroke: 2.5px #1e3a8a;
+            text-shadow: 4px 4px 0px #1e3a8a;
+            line-height: 1.1;
+            margin-bottom: 0.25rem;
+        }
+
+        /* Teks Nama Penulis */
+        .cover-author {
+            font-family: 'Fredoka', sans-serif;
+            color: white;
+            -webkit-text-stroke: 1px #0284c7;
+            text-shadow: 2px 2px 0px #0284c7;
+        }
+
+        /* Input Garis Buku Tulis */
+        .notebook-input {
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.6);
+            color: white;
+            font-weight: 600;
+            width: 100%;
+            padding: 2px 8px;
+        }
+        .notebook-input:focus {
+            outline: none;
+            border-bottom: 2px solid #facc15;
+        }
+        
+        /* Textarea Bergaris */
+        .notebook-textarea {
+            background-image: linear-gradient(transparent, transparent 23px, rgba(255, 255, 255, 0.4) 24px);
+            background-size: 100% 24px;
+            line-height: 24px;
+            padding-top: 0;
+            resize: none;
+        }
+
+        /* Ornamen Awan (Statis) */
+        .cloud {
+            position: absolute;
+            background: white;
+            border-radius: 50px;
+            opacity: 0.8;
+        }
+        .cloud::before, .cloud::after {
+            content: '';
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+        }
+
+        /* Animasi Ombak Bergerak */
+        @keyframes wave-motion {
+            0%, 100% { transform: scaleX(1.3) translateX(3%); }
+            50% { transform: scaleX(1.3) translateX(-3%); }
+        }
+        .animate-wave {
+            animation: wave-motion 8s ease-in-out infinite;
+        }
+
+        /* --- SISTEM MULTI-HALAMAN (ANIMASI SLIDE) --- */
+        .page {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); /* Efek slide elegan */
+            transform: translateX(100%); /* Halaman bersembunyi di sebelah kanan */
+        }
+        .page.active {
+            transform: translateX(0); /* Halaman tampil di tengah */
+            z-index: 10;
+        }
+        .page.prev-page {
+            transform: translateX(-100%); /* Halaman bergeser ke kiri (riwayat) */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="a4-container">
+        
+        <!-- ================= HALAMAN 0: COVER ================= -->
+        <div class="page active overflow-y-auto overflow-x-hidden custom-scrollbar" id="page-0" style="background-color: #bae6fd;">
+            
+            <div class="flex flex-col min-h-full w-full">
+            <!-- BAGIAN ATAS : LANGIT & JUDUL -->
+            <div class="flex-1 relative flex flex-col items-center justify-center py-6 px-4 z-10 w-full shrink-0">
+                <!-- Ornamen Awan Statis -->
+                <div class="cloud w-20 h-6 top-6 left-4" style="border-radius: 20px;">
+                    <div class="w-10 h-10 -top-4 left-2"></div>
+                    <div class="w-8 h-8 -top-3 right-2"></div>
+                </div>
+                <div class="cloud w-28 h-8 top-16 -right-6" style="border-radius: 20px;">
+                    <div class="w-12 h-12 -top-5 left-4"></div>
+                    <div class="w-10 h-10 -top-3 right-2"></div>
+                </div>
+
+                <!-- Header Logo -->
+                <div class="w-full flex justify-end px-2 absolute top-4 right-2 z-20">
+                    <div class="flex gap-1.5 items-center bg-white/40 backdrop-blur-sm px-2 py-1 rounded-lg shadow-sm border border-white/50">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/9/9c/Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg" alt="Tut Wuri" class="h-5 md:h-7 object-contain">
+                        <img src="https://ditpsd.kemdikbud.go.id/upload/filemanager/2022/05/kurikulum%20merdeka%20logo.png" alt="Kurikulum Merdeka" class="h-5 md:h-7 object-contain" onerror="this.style.display='none'">
+                    </div>
+                </div>
+
+                <!-- Teks Judul -->
+                <div class="text-center relative z-20 mt-4 sm:mt-2">
+                    <h1 class="cover-title">E-LKPD</h1>
+                    <p class="text-[11px] sm:text-sm font-bold text-[#1e3a8a] tracking-wide mb-1">e-LKPD REKAYASA STEM</p>
+                    <p class="text-[9px] sm:text-xs font-semibold text-[#1e3a8a] mb-2">Engineering Design Process (EDP)</p>
+                    <div class="bg-[#1e3a8a] text-white px-3 py-1 rounded-full inline-block border border-white shadow-md">
+                        <p class="text-[9px] sm:text-[11px] font-bold tracking-widest uppercase">MISI NAUTILUS: SISTEM BALLAST KIMIA</p>
+                    </div>
+                </div>
+
+                <!-- Gambar Kapal Selam -->
+                <div class="relative z-20 w-[35%] sm:w-[30%] max-h-[22vh] my-4 flex items-center justify-center shrink-0">
+                    <img src="kapal_selam_kartun.png" alt="Kapal Selam" class="max-w-full max-h-full object-contain drop-shadow-xl" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3254/3254091.png'">
+                </div>
+
+                <!-- Form Identitas Kelompok Biru Pekat -->
+                <div class="w-full max-w-[85%] sm:max-w-[75%] relative z-30">
+                    <div class="absolute -left-5 sm:-left-12 bottom-0 flex flex-col items-center gap-1 drop-shadow-lg z-0">
+                        <i class="fa-solid fa-flask text-2xl sm:text-4xl text-emerald-500 transform -rotate-12"></i>
+                        <i class="fa-solid fa-book-journal-whills text-xl sm:text-3xl text-blue-500"></i>
+                    </div>
+                    <div class="absolute -right-5 sm:-right-12 bottom-2 flex flex-col items-center gap-1 drop-shadow-lg z-0">
+                        <i class="fa-solid fa-apple-whole text-xl sm:text-3xl text-red-500"></i>
+                        <i class="fa-solid fa-microscope text-2xl sm:text-4xl text-amber-500"></i>
+                    </div>
+                    <div class="bg-[#1e40af] rounded-xl p-4 shadow-[0_10px_20px_rgba(30,58,138,0.4)] border-[2px] border-[#3b82f6] relative z-10">
+                        <div class="absolute -top-2.5 left-1/2 transform -translate-x-1/2 bg-yellow-400 text-yellow-900 text-[8px] sm:text-[10px] font-black px-2 py-0.5 rounded-full border border-white shadow-sm whitespace-nowrap">
+                            DATA TIM PENELITI
+                        </div>
+                        <div class="flex items-center mb-2 mt-2">
+                            <label class="text-white font-bold text-[10px] sm:text-xs w-20 shrink-0">Kelompok :</label>
+                            <input type="text" class="notebook-input text-[10px] sm:text-xs">
+                        </div>
+                        <div class="flex items-start mb-2">
+                            <label class="text-white font-bold text-[10px] sm:text-xs w-20 shrink-0 pt-1">Anggota :</label>
+                            <textarea rows="3" class="notebook-input notebook-textarea text-[10px] sm:text-xs h-[74px]"></textarea>
+                        </div>
+                        <div class="flex items-center">
+                            <label class="text-white font-bold text-[10px] sm:text-xs w-20 shrink-0">Kelas :</label>
+                            <input type="text" class="notebook-input text-[10px] sm:text-xs">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BAGIAN BAWAH : LAUTAN PENELITI -->
+            <div class="w-full relative z-20 flex flex-col justify-end items-center pt-10 pb-8 shrink-0 mt-auto">
+                <!-- SVG Ombak Pembatas -->
+                <div class="w-full absolute top-[1px] left-0 z-10 pointer-events-none transform -translate-y-full">
+                    <svg viewBox="0 0 1440 100" class="w-full h-auto animate-wave" preserveAspectRatio="none">
+                        <path fill="#0284c7" fill-opacity="1" d="M0,32L48,37.3C96,43,192,53,288,48C384,43,480,21,576,16C672,11,768,21,864,32C960,43,1056,53,1152,48C1248,43,1344,21,1392,10.7L1440,0L1440,100L1392,100C1344,100,1248,100,1152,100C1056,100,960,100,864,100C768,100,672,100,576,100C480,100,384,100,288,100C192,100,96,100,48,100L0,100Z"></path>
+                    </svg>
+                </div>
+                <div class="absolute inset-0 bg-gradient-to-b from-[#0284c7] to-[#1e3a8a] z-0"></div>
+                <div class="text-center relative z-30 mb-3">
+                    <p class="text-[8px] sm:text-[10px] font-bold text-sky-200 uppercase tracking-widest mb-0.5 drop-shadow-md">Disusun Oleh:</p>
+                    <p class="cover-author text-sm sm:text-base font-bold tracking-wide leading-tight">Muhamad Al Azis</p>
+                    <p class="cover-author text-xs sm:text-sm font-bold tracking-wide leading-tight">Muhammad Rizky Pratama</p>
+                </div>
+                <!-- Trigger ke halaman 1 -->
+                <button onclick="nextPage()" class="bg-yellow-400 text-[#1e3a8a] font-black text-[10px] sm:text-xs px-6 py-2.5 rounded-full shadow-[0_4px_0_#b45309] border border-white relative z-30 flex items-center gap-2 hover:bg-yellow-300 hover:-translate-y-0.5 transition-all duration-200">
+                    MULAI MENGERJAKAN <i class="fa-solid fa-water text-blue-600"></i>
+                </button>
+            </div>
+            </div>
+        </div>
+
+        <!-- ================= HALAMAN VIDEO PENGANTAR ================= -->
+        <div class="page bg-[#f8fafc]" id="page-video">
+            
+            <!-- Header Biru Atas -->
+            <div class="bg-gradient-to-r from-blue-700 to-[#0284c7] px-6 pt-6 pb-4 shadow-md z-20 shrink-0 border-b-4 border-yellow-400">
+                <h2 class="text-white font-black text-xl sm:text-2xl drop-shadow-md tracking-wide">
+                    ORIENTASI <span class="text-yellow-300">MISI</span>
+                </h2>
+                <p class="text-blue-100 text-[10px] sm:text-xs font-semibold">(Simak video pengantar berikut sebelum memulai tahap rekayasa)</p>
+            </div>
+
+            <!-- Area Konten Kertas Tengah -->
+            <div class="flex-1 overflow-y-auto p-4 sm:p-6 z-10 custom-scrollbar flex flex-col items-center justify-center">
+                <div class="w-full max-w-3xl space-y-6">
+                    <!-- Petunjuk -->
+                    <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg shadow-sm text-sm text-blue-900 leading-relaxed">
+                        <p>Selamat datang, Tim Insinyur! Sebelum memasuki <strong>Tahap 1</strong>, tontonlah video pengarahan misi di bawah ini untuk memahami latar belakang tantangan yang akan kita selesaikan.</p>
+                    </div>
+
+                    <!-- Video Container -->
+                    <div class="w-full aspect-video rounded-xl overflow-hidden shadow-2xl border-4 border-slate-200 bg-black">
+                        <iframe class="w-full h-full" src="https://www.youtube.com/embed/M-tkhRciBAs?si=hTzSnwZE5lHZV7rN" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Biru Bawah (Navigasi) -->
+            <div class="bg-gradient-to-r from-blue-700 to-[#0284c7] px-6 py-3 shadow-[0_-4px_10px_rgba(0,0,0,0.1)] z-20 shrink-0 flex justify-between items-center">
+                <button onclick="checkUnsavedAndNavigate(prevPage)" class="text-white hover:text-yellow-300 font-bold text-[11px] sm:text-xs px-2 py-2 flex items-center gap-2 transition-colors">
+                    <i class="fa-solid fa-chevron-left"></i> KEMBALI KE COVER
+                </button>
+                <button onclick="checkUnsavedAndNavigate(nextPage)" class="bg-yellow-400 text-[#1e3a8a] font-bold text-[11px] sm:text-xs px-4 py-2 rounded-full hover:bg-yellow-300 hover:scale-105 shadow-sm transition-all flex items-center gap-2">
+                    LANJUT TAHAP 1 <i class="fa-solid fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- ================= HALAMAN 1: DEFINE ================= -->
+        <div class="page bg-[#f8fafc]" id="page-1">
+            
+            <!-- Header Biru Atas -->
+            <div class="bg-gradient-to-r from-blue-700 to-[#0284c7] px-6 pt-6 pb-4 shadow-md z-20 shrink-0 border-b-4 border-yellow-400">
+                <h2 class="text-white font-black text-xl sm:text-2xl drop-shadow-md tracking-wide">
+                    TAHAP 1: <span class="text-yellow-300">DEFINE</span>
+                </h2>
+                <p class="text-blue-100 text-[10px] sm:text-xs font-semibold">(Mendefinisikan Masalah)</p>
+            </div>
+
+            <!-- Area Konten Kertas Tengah (Bisa Di-scroll) -->
+            <div class="flex-1 overflow-y-auto p-4 sm:p-6 z-10 custom-scrollbar">
+                <div class="max-w-3xl mx-auto space-y-5">
+                    
+                    <!-- Petunjuk -->
+                    <div class="bg-blue-50 border-l-4 border-blue-500 p-3 rounded-r-lg shadow-sm">
+                        <p class="text-[11px] sm:text-xs text-blue-900 font-semibold"><i class="fa-solid fa-circle-info mr-2 text-blue-500"></i>Bacalah dokumen surat dari klien di bawah ini dengan saksama!</p>
+                    </div>
+
+                    <!-- Kertas Surat Formal Klien -->
+                    <div class="bg-white border border-slate-300 p-5 sm:p-6 rounded-sm shadow-[0_4px_10px_rgba(0,0,0,0.05)] relative font-serif text-sm text-slate-800 leading-relaxed">
+                        <div class="text-center border-b-2 border-slate-800 pb-3 mb-4">
+                            <h3 class="font-bold text-base sm:text-lg uppercase tracking-wider text-slate-900">Surat Klien</h3>
+                            <h4 class="font-semibold text-slate-700 text-xs sm:text-sm">Pengadaan Wahana Riset Tanpa Awak</h4>
+                        </div>
+
+                        <p class="font-bold mb-3">Yth. Tim Insinyur Kimia & Material,</p>
+                        
+                        <p class="mb-2 text-justify">Kami dari Balai Riset Ekologi Perairan Nusantara sedang mengembangkan "Mikro-Wahana Bawah Air" (kapsul sensor seukuran botol) untuk memantau kualitas air di dasar palung. Kapsul ini dijatuhkan dari kapal, tenggelam ke dasar, mengambil sampel, lalu kembali ke permukaan secara otomatis.</p>
+                        
+                        <p class="mb-4 text-justify">Karena tekanan tinggi, kami menggunakan sistem pendorong mekanik-kimia berbasis gas Karbon Dioksida (CO<sub>2</sub>) alih-alih pompa elektrik. Firma Anda ditugaskan merancang prototipe pendorong ini menggunakan botol transparan dan pemberat.</p>
+                        
+                        <div class="bg-slate-100 border-l-4 border-slate-400 p-3 mb-4 italic text-[13px]">
+                            <strong>Kriteria Kritis:</strong> Kapsul harus berdiam di dasar air selama <span class="text-red-600 font-bold">tepat 30 detik</span> (waktu bagi sensor mengambil data), sebelum reaksi kimia membuang air dari dalam botol dan membuatnya melesat ke permukaan. Wahana harus naik dalam posisi <strong>Tegak Lurus</strong> agar antena tidak rusak. Reaktan dibatasi pada air dan tablet penghasil gas (effervescent).
+                        </div>
+
+                        <p class="mb-6">Kami menunggu laporan rekayasa Anda.</p>
+
+                        <div class="w-1/2 float-right text-center">
+                            <p class="mb-8">Hormat kami,</p>
+                            <p class="font-bold border-b border-slate-500 inline-block px-2">Dr. Ir. Hendra Gunawan, M.Sc.</p>
+                            <p class="text-xs text-slate-500 mt-1">Kep. Divisi Instrumentasi Kelautan</p>
+                        </div>
+                        <div class="clear-both"></div>
+                    </div>
+
+                    <!-- Form Problem Scoping LKPD -->
+                    <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+                        <h3 class="font-bold text-[#1e3a8a] mb-4 border-b pb-2 flex items-center gap-2">
+                            <i class="fa-solid fa-pen-clip"></i> Analisis Masalah (Problem Scoping)
+                        </h3>
+                        
+                        <div class="space-y-4">
+                            <!-- Field 1 -->
+                            <div class="flex flex-col sm:flex-row sm:items-end gap-2">
+                                <label class="text-xs font-bold text-slate-700 whitespace-nowrap">Siapa Klien Kita :</label>
+                                <input type="text" class="flex-1 bg-transparent border-0 border-b border-slate-400 text-sm focus:ring-0 focus:border-blue-600 px-1 py-1 transition-colors" placeholder="Ketik jawaban di sini...">
+                            </div>
+
+                            <!-- Field 2 (Group) -->
+                            <div class="bg-blue-50/50 p-3 rounded border border-blue-100 mt-2">
+                                <label class="block text-xs font-bold text-slate-700 mb-2">Kriteria Keberhasilan (Goals) :</label>
+                                <div class="space-y-3 pl-2 sm:pl-4">
+                                    <div class="flex flex-col sm:flex-row sm:items-end gap-2">
+                                        <span class="text-xs font-semibold text-slate-600 whitespace-nowrap"><i class="fa-regular fa-clock text-blue-500 mr-1"></i> Target waktu tunggu di dasar air:</span>
+                                        <input type="text" class="flex-1 bg-transparent border-0 border-b border-slate-400 text-sm focus:ring-0 focus:border-blue-600 px-1 py-1 transition-colors">
+                                    </div>
+                                    <div class="flex flex-col sm:flex-row sm:items-end gap-2">
+                                        <span class="text-xs font-semibold text-slate-600 whitespace-nowrap"><i class="fa-solid fa-arrows-up-to-line text-blue-500 mr-1"></i> Orientasi wahana saat naik:</span>
+                                        <input type="text" class="flex-1 bg-transparent border-0 border-b border-slate-400 text-sm focus:ring-0 focus:border-blue-600 px-1 py-1 transition-colors">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Field 3 -->
+                            <div class="pt-2">
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Batasan Desain (Constraints) :</label>
+                                <textarea rows="2" class="w-full bg-white border border-slate-300 rounded p-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none resize-none shadow-inner" placeholder="Bahan atau batasan apa saja yang harus diikuti?"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Biru Bawah (Navigasi) -->
+            <div class="bg-gradient-to-r from-blue-700 to-[#0284c7] px-6 py-3 shadow-[0_-4px_10px_rgba(0,0,0,0.1)] z-20 shrink-0 flex justify-between items-center">
+                <button onclick="prevPage()" class="text-white hover:text-yellow-300 font-bold text-[11px] sm:text-xs px-2 py-2 flex items-center gap-2 transition-colors">
+                    <i class="fa-solid fa-chevron-left"></i> KEMBALI
+                </button>
+                <button onclick="nextPage()" class="bg-yellow-400 text-[#1e3a8a] font-bold text-[11px] sm:text-xs px-4 py-2 rounded-full hover:bg-yellow-300 hover:scale-105 shadow-sm transition-all flex items-center gap-2">
+                    LANJUT TAHAP 2 <i class="fa-solid fa-chevron-right"></i>
+                </button>
+            </div>
+
+        </div>
+
+        <!-- ================= HALAMAN 2: LEARN ================= -->
+        <div class="page bg-[#f8fafc]" id="page-2">
+            
+            <!-- Header Biru Atas -->
+            <div class="bg-gradient-to-r from-blue-700 to-[#0284c7] px-6 pt-6 pb-4 shadow-md z-20 shrink-0 border-b-4 border-yellow-400">
+                <h2 class="text-white font-black text-xl sm:text-2xl drop-shadow-md tracking-wide">
+                    TAHAP 2: <span class="text-yellow-300">LEARN</span>
+                </h2>
+                <p class="text-blue-100 text-[10px] sm:text-xs font-semibold">(Penyelidikan Pengetahuan Latar Belakang)</p>
+            </div>
+
+            <!-- Area Konten Kertas Tengah -->
+            <div class="flex-1 overflow-y-auto p-4 sm:p-6 z-10 custom-scrollbar">
+                <div class="max-w-3xl mx-auto space-y-6">
+                    
+                    <!-- Intro -->
+                    <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg shadow-sm text-sm text-blue-900 leading-relaxed">
+                        <p>Sebelum membangun sebuah sistem rekayasa, seorang insinyur wajib memahami prinsip sains dan matematika yang menggerakkan sistem tersebut. Pelajari konsep dasar di bawah ini dan <strong>diskusikan bersama tim peneliti kalian!</strong></p>
+                    </div>
+
+                    <!-- Topik 1: Reaksi Kimia -->
+                    <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+                        <h3 class="font-bold text-[#1e3a8a] text-lg mb-3 flex items-center gap-2 border-b pb-2">
+                            <i class="fa-solid fa-flask text-emerald-500"></i> 1. Pengetahuan Latar Belakang: Bagaimana Reaksi Terjadi?
+                        </h3>
+                        <div class="text-sm text-slate-700 leading-relaxed space-y-3">
+                            <p>Sumber tenaga dari wahana kita adalah tablet <em>effervescent</em>. Tablet ini mengandung padatan Asam Sitrat (C<sub>6</sub>H<sub>8</sub>O<sub>7</sub>) dan Natrium Bikarbonat/Baking Soda (NaHCO<sub>3</sub>).</p>
+                            <p>Saat masih kering, keduanya tidak bereaksi. Namun, ketika air masuk ke dalam botol, kedua zat padat tersebut akan larut, partikel-partikelnya bergerak bebas, dan saling bertumbukan hingga menghasilkan reaksi kimia berikut:</p>
+                            
+                            <div class="bg-slate-800 text-emerald-400 font-mono text-center p-3 rounded-lg overflow-x-auto whitespace-nowrap shadow-inner border border-slate-700">
+                                3NaHCO<sub>3(aq)</sub> + C<sub>6</sub>H<sub>8</sub>O<sub>7(aq)</sub> &rarr; Na<sub>3</sub>C<sub>6</sub>H<sub>5</sub>O<sub>7(aq)</sub> + 3H<sub>2</sub>O<sub>(l)</sub> + 3CO<sub>2(g)</sub>
+                            </div>
+                            
+                            <p class="bg-emerald-50 text-emerald-800 p-3 rounded-md border border-emerald-200">
+                                <i class="fa-solid fa-lightbulb text-emerald-500 mr-1"></i> Perhatikan wujud zat <strong>(g)</strong> di akhir reaksi! Gas Karbon Dioksida (CO<sub>2</sub>) inilah yang akan memberikan tekanan untuk mengusir sisa air dari dalam botol.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Topik 2: Kinetika Kimia -->
+                    <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+                        <h3 class="font-bold text-[#1e3a8a] text-lg mb-3 flex items-center gap-2 border-b pb-2">
+                            <i class="fa-solid fa-stopwatch text-rose-500"></i> 2. Pengetahuan Sains: Kinetika Kimia
+                        </h3>
+                        <div class="text-sm text-slate-700 leading-relaxed space-y-3">
+                            <p>Klien meminta kapsul tidak langsung naik, melainkan memiliki waktu tunda <em>(delay)</em> sekitar <strong>30 detik</strong>. Laju produksi gas CO<sub>2</sub> sangat bergantung pada Teori Tumbukan.</p>
+                            
+                            <div class="bg-rose-50 border border-rose-200 p-4 rounded-lg mt-3">
+                                <p class="font-bold text-rose-900 mb-2"><i class="fa-solid fa-users text-rose-500 mr-1"></i> Diskusikan:</p>
+                                <p class="mb-3 text-rose-800 text-xs sm:text-sm">Rekayasa fisik apa yang bisa kalian lakukan pada tablet agar bereaksi lebih lambat di awal pencelupan? <em>(Petunjuk: Pikirkan tentang Luas Permukaan Bidang Sentuh atau penggunaan penghalang mekanis seperti tisu)</em>.</p>
+                                
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Strategi Tim Kami:</label>
+                                <textarea rows="3" class="w-full bg-white border border-slate-300 rounded p-2 text-sm focus:border-rose-500 focus:ring-1 focus:ring-rose-500 outline-none resize-none shadow-inner" placeholder="Tuliskan hipotesis/strategi rekayasa kalian di sini..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Topik 3: Matematika & Stoikiometri -->
+                    <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+                        <h3 class="font-bold text-[#1e3a8a] text-lg mb-3 flex items-center gap-2 border-b pb-2">
+                            <i class="fa-solid fa-calculator text-purple-500"></i> 3. Pengetahuan Matematika: Dasar Stoikiometri Gas
+                        </h3>
+                        <div class="text-sm text-slate-700 leading-relaxed space-y-3">
+                            <p>Desain rekayasa tidak boleh asal tebak. Jika takaran tablet terlalu sedikit, gas yang dihasilkan tidak cukup untuk mengangkat wahana. Jika terlalu banyak, botol bisa meledak karena kelebihan tekanan. Kalian harus menghitungnya!</p>
+                            
+                            <div class="bg-slate-50 border border-slate-200 p-4 rounded-lg space-y-3">
+                                <p class="font-bold text-slate-800 border-b border-slate-300 pb-1">Panduan Perhitungan Stoikiometri:</p>
+                                <ul class="list-decimal pl-4 space-y-2 text-xs sm:text-sm">
+                                    <li><strong>Langkah 1 (Menghitung Mr):</strong> Jumlahkan Massa Atom Relatif (Ar) penyusun molekul.<br><span class="text-slate-500 italic">(Contoh: Mr NaHCO<sub>3</sub> = Ar Na + Ar H + Ar C + (3 &times; Ar O))</span>.</li>
+                                    <li><strong>Langkah 2 (Menghitung Mol Reaktan):</strong> Ubah massa zat (gram) yang kalian timbang menjadi satuan jumlah molekul (Mol).
+                                        <div class="block my-2 font-mono font-bold bg-white border border-slate-200 w-fit px-3 py-1 rounded shadow-sm text-blue-700">
+                                            <div class="inline-flex items-center align-middle">
+                                                <span class="mr-2">n =</span>
+                                                <div class="flex flex-col text-center">
+                                                    <span class="border-b border-blue-700 px-1 pb-0.5">Massa</span>
+                                                    <span class="pt-0.5">Mr</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li><strong>Langkah 3 (Rasio Koefisien):</strong> Lihat angka di depan molekul pada persamaan reaksi di atas. Perbandingan koefisien NaHCO<sub>3</sub> dengan gas CO<sub>2</sub> adalah <strong>3 : 3</strong> (atau 1 : 1). Artinya, mol gas yang dihasilkan sama dengan mol reaktan.</li>
+                                    <li><strong>Langkah 4 (Menghitung Volume Gas):</strong> Pada Suhu dan Tekanan Ruang (RTP), 1 mol gas menempati ruang sebesar 24 Liter (24.000 mL).
+                                        <div class="block my-2 font-mono font-bold bg-white border border-slate-200 w-fit px-3 py-1 rounded shadow-sm text-blue-700">
+                                            Volume = n &times; 24.000 mL
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <div class="bg-purple-50 border border-purple-200 p-4 rounded-lg mt-3">
+                                <p class="font-bold text-purple-900 mb-2"><i class="fa-solid fa-users text-purple-500 mr-1"></i> Diskusikan:</p>
+                                <p class="mb-3 text-purple-800 text-xs sm:text-sm">Berdasarkan panduan di atas, data angka apa saja yang paling kalian butuhkan untuk menentukan volume gas teoritis dari prototipe kalian nanti?</p>
+                                
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Analisis Kebutuhan Data Tim:</label>
+                                <textarea rows="2" class="w-full bg-white border border-slate-300 rounded p-2 text-sm focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none resize-none shadow-inner" placeholder="Sebutkan variabel-variabel yang harus kalian cari tahu nilainya..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Topik 4: Fisika Mekanika -->
+                    <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+                        <h3 class="font-bold text-[#1e3a8a] text-lg mb-3 flex items-center gap-2 border-b pb-2">
+                            <i class="fa-solid fa-anchor text-blue-500"></i> 4. Pengetahuan Fisika: Mekanika Apung & Titik Berat
+                        </h3>
+                        <div class="text-sm text-slate-700 leading-relaxed space-y-3">
+                            <p>Sistem ballast pada kapal selam asli menggunakan udara bertekanan. Kita menggunakan gas CO<sub>2</sub>. Saat gas mendesak air keluar melalui lubang di botol, total massa wahana akan berkurang drastis, namun volumenya tetap.</p>
+                            
+                            <div class="bg-blue-50 border border-blue-200 p-4 rounded-lg mt-3">
+                                <p class="font-bold text-blue-900 mb-2"><i class="fa-solid fa-users text-blue-500 mr-1"></i> Diskusikan:</p>
+                                <p class="mb-3 text-blue-800 text-xs sm:text-sm">Berdasarkan Hukum Archimedes, jelaskan mengapa hal ini memicu wahana untuk mengapung! Selanjutnya, di titik sebelah mana pemberat (koin logam) harus ditempelkan agar wahana mengapung naik dengan posisi <strong>tegak lurus</strong> (berkaitan dengan <em>Center of Gravity</em>)?</p>
+                                
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Analisis Mekanika Tim:</label>
+                                <textarea rows="3" class="w-full bg-white border border-slate-300 rounded p-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none resize-none shadow-inner" placeholder="Jelaskan alasan fisika dan letak penempelan beban koin..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Footer Biru Bawah (Navigasi) -->
+            <div class="bg-gradient-to-r from-blue-700 to-[#0284c7] px-6 py-3 shadow-[0_-4px_10px_rgba(0,0,0,0.1)] z-20 shrink-0 flex justify-between items-center">
+                <button onclick="prevPage()" class="text-white hover:text-yellow-300 font-bold text-[11px] sm:text-xs px-2 py-2 flex items-center gap-2 transition-colors">
+                    <i class="fa-solid fa-chevron-left"></i> KEMBALI TAHAP 1
+                </button>
+                <button onclick="nextPage()" class="bg-yellow-400 text-[#1e3a8a] font-bold text-[11px] sm:text-xs px-4 py-2 rounded-full hover:bg-yellow-300 hover:scale-105 shadow-sm transition-all flex items-center gap-2">
+                    LANJUT TAHAP 3 <i class="fa-solid fa-chevron-right"></i>
+                </button>
+            </div>
+
+        </div>
+
+        <!-- ================= HALAMAN 3: PLAN ================= -->
+        <div class="page bg-[#f8fafc]" id="page-3">
+            
+            <!-- Header Biru Atas -->
+            <div class="bg-gradient-to-r from-blue-700 to-[#0284c7] px-6 pt-6 pb-4 shadow-md z-20 shrink-0 border-b-4 border-yellow-400">
+                <h2 class="text-white font-black text-xl sm:text-2xl drop-shadow-md tracking-wide">
+                    TAHAP 3: <span class="text-yellow-300">PLAN</span>
+                </h2>
+                <p class="text-blue-100 text-[10px] sm:text-xs font-semibold">(Merencanakan Solusi)</p>
+            </div>
+
+            <!-- Area Konten Kertas Tengah -->
+            <div class="flex-1 overflow-y-auto p-4 sm:p-6 z-10 custom-scrollbar">
+                <div class="max-w-3xl mx-auto space-y-6">
+                    
+                    <!-- Intro -->
+                    <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg shadow-sm text-sm text-blue-900 leading-relaxed">
+                        <p>Di tahap ini, insinyur tidak langsung membuat satu alat. Kalian harus memunculkan beberapa ide <em>(Generate ideas)</em>, mempertimbangkan konsekuensinya <em>(Trade-offs)</em>, baru memilih satu solusi terbaik untuk digambar skemanya <em>(Develop plans)</em>.</p>
+                    </div>
+
+                    <!-- Bagian 1: Trade-offs -->
+                    <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+                        <h3 class="font-bold text-[#1e3a8a] text-lg mb-3 flex items-center gap-2 border-b pb-2">
+                            <i class="fa-solid fa-scale-balanced text-amber-500"></i> 1. Bertukar Pikiran & Analisis Konsekuensi
+                        </h3>
+                        <p class="text-xs sm:text-sm text-slate-600 mb-4">Diskusikan dengan tim kalian berbagai kemungkinan desain. Setiap pilihan pasti memiliki <strong>trade-off</strong> (keuntungan di satu sisi, tapi kelemahan di sisi lain). Lengkapi analisis berikut!</p>
+
+                        <div class="space-y-4">
+                            <!-- Poin A -->
+                            <div class="bg-amber-50/50 border border-amber-200 rounded-lg p-3">
+                                <h4 class="font-bold text-amber-900 text-sm mb-2">A. Strategi Laju Reaksi (Bentuk Tablet)</h4>
+                                <div class="space-y-3 text-xs sm:text-sm pl-2 border-l-2 border-amber-300">
+                                    <div>
+                                        <span class="font-semibold text-slate-800">Opsi 1: Dihancurkan.</span>
+                                        <span class="text-emerald-700">(Kelebihan: Gas cepat terbentuk).</span>
+                                        <div class="flex flex-col sm:flex-row sm:items-end gap-1 sm:gap-2 mt-1">
+                                            <span class="text-rose-700 font-semibold">Kelemahan:</span>
+                                            <input type="text" class="flex-1 bg-transparent border-0 border-b border-slate-400 focus:ring-0 focus:border-amber-500 px-1 py-0.5 text-slate-700">
+                                        </div>
+                                    </div>
+                                    <div class="pt-1">
+                                        <span class="font-semibold text-slate-800">Opsi 2: Dibungkus Tisu.</span>
+                                        <span class="text-emerald-700">(Kelebihan: Ada jeda waktu).</span>
+                                        <div class="flex flex-col sm:flex-row sm:items-end gap-1 sm:gap-2 mt-1">
+                                            <span class="text-rose-700 font-semibold">Kelemahan:</span>
+                                            <input type="text" class="flex-1 bg-transparent border-0 border-b border-slate-400 focus:ring-0 focus:border-amber-500 px-1 py-0.5 text-slate-700">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Poin B -->
+                            <div class="bg-blue-50/50 border border-blue-200 rounded-lg p-3">
+                                <h4 class="font-bold text-blue-900 text-sm mb-2">B. Ukuran Lubang Sirkulasi Air di Tutup Botol</h4>
+                                <div class="space-y-3 text-xs sm:text-sm pl-2 border-l-2 border-blue-300">
+                                    <div>
+                                        <span class="font-semibold text-slate-800">Opsi 1: Lubang Besar.</span>
+                                        <span class="text-emerald-700">(Kelebihan: Air cepat masuk/tenggelam).</span>
+                                        <span class="text-rose-700 font-semibold block mt-1">Kelemahan: Gas bisa ikut lolos/tidak menumpuk.</span>
+                                    </div>
+                                    <div class="pt-1">
+                                        <span class="font-semibold text-slate-800">Opsi 2: Lubang Kecil.</span>
+                                        <span class="text-emerald-700">(Kelebihan: Gas tertahan kuat).</span>
+                                        <div class="flex flex-col sm:flex-row sm:items-end gap-1 sm:gap-2 mt-1">
+                                            <span class="text-rose-700 font-semibold">Kelemahan:</span>
+                                            <input type="text" class="flex-1 bg-transparent border-0 border-b border-slate-400 focus:ring-0 focus:border-blue-500 px-1 py-0.5 text-slate-700">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Poin C -->
+                            <div class="bg-purple-50/50 border border-purple-200 rounded-lg p-3 text-xs sm:text-sm">
+                                <h4 class="font-bold text-purple-900 mb-2">C. Jumlah Pemberat (Koin)</h4>
+                                <div class="leading-relaxed">
+                                    <span class="font-semibold text-slate-800">Analisis:</span> Jika koin terlalu banyak, botol akan
+                                    <input type="text" class="w-24 bg-transparent border-0 border-b border-slate-400 focus:ring-0 focus:border-purple-500 px-1 mx-1 text-center text-slate-700">,
+                                    tetapi jika terlalu sedikit, botol akan
+                                    <input type="text" class="w-24 bg-transparent border-0 border-b border-slate-400 focus:ring-0 focus:border-purple-500 px-1 mx-1 text-center text-slate-700">.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bagian 2: Choose a Solution -->
+                    <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+                        <h3 class="font-bold text-[#1e3a8a] text-lg mb-3 flex items-center gap-2 border-b pb-2">
+                            <i class="fa-solid fa-check-to-slot text-emerald-600"></i> 2. Memutuskan Solusi <span class="font-normal text-sm sm:text-base italic text-slate-500 ml-1">(Choose a Solution to Try)</span>
+                        </h3>
+                        <p class="text-xs sm:text-sm text-slate-600 mb-4">Berdasarkan pertimbangan <em>trade-offs</em> di atas, tetapkan spesifikasi final prototipe yang akan kalian uji coba pertama kali:</p>
+
+                        <div class="space-y-4 mb-5 text-xs sm:text-sm font-semibold text-slate-700">
+                            <div class="flex flex-col sm:flex-row sm:items-end gap-2">
+                                <span class="whitespace-nowrap"><i class="fa-solid fa-circle-dot text-emerald-500 mr-2"></i>Bentuk fisik tablet yang dipilih:</span>
+                                <input type="text" class="flex-1 bg-transparent border-0 border-b border-slate-400 focus:ring-0 focus:border-emerald-500 px-1 py-0.5 text-slate-800">
+                            </div>
+                            <div class="flex flex-col sm:flex-row sm:items-end gap-2">
+                                <span class="whitespace-nowrap"><i class="fa-solid fa-circle-dot text-emerald-500 mr-2"></i>Perkiraan diameter lubang tutup botol:</span>
+                                <input type="text" class="flex-1 bg-transparent border-0 border-b border-slate-400 focus:ring-0 focus:border-emerald-500 px-1 py-0.5 text-slate-800">
+                            </div>
+                            <div class="flex items-end gap-2">
+                                <span class="whitespace-nowrap"><i class="fa-solid fa-circle-dot text-emerald-500 mr-2"></i>Jumlah koin pemberat:</span>
+                                <input type="number" class="w-16 bg-transparent border-0 border-b border-slate-400 focus:ring-0 focus:border-emerald-500 px-1 py-0.5 text-center text-slate-800">
+                                <span>keping.</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-emerald-50 p-3 rounded border border-emerald-200">
+                            <label class="block text-xs font-bold text-emerald-900 mb-1">Alasan Pemilihan Desain:</label>
+                            <p class="text-[11px] sm:text-xs text-emerald-700 mb-2">Mengapa kombinasi ini menurut kalian paling ideal untuk mencapai target 30 detik?</p>
+                            <textarea rows="3" class="w-full bg-white border border-slate-300 rounded p-2 text-sm focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none resize-none shadow-inner" placeholder="Tuliskan alasan diskusi tim kalian..."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Bagian 3: Blueprint -->
+                    <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+                        <h3 class="font-bold text-[#1e3a8a] text-lg mb-3 flex items-center gap-2 border-b pb-2">
+                            <i class="fa-solid fa-compass-drafting text-blue-600"></i> 3. Desain Konstruksi <span class="font-normal text-sm sm:text-base italic text-slate-500 ml-1">(Engineering Blueprint)</span>
+                        </h3>
+                        <p class="text-xs sm:text-sm text-slate-600 mb-3">Gambarkan sketsa prototipe wahana kapsul (botol) kalian berdasarkan keputusan di atas! Berikan keterangan panah yang mendetail untuk:</p>
+                        <ul class="list-disc pl-5 space-y-1 text-xs sm:text-sm text-slate-700 mb-4">
+                            <li>Posisi lubang air masuk/keluar.</li>
+                            <li>Posisi penempelan koin pemberat (perhatikan Titik Berat agar posisi naik <strong>tegak lurus</strong>).</li>
+                            <li>Di mana dan bagaimana tablet direkatkan di dalam botol sebelum diluncurkan.</li>
+                        </ul>
+
+                        <!-- Blueprint Canvas Area -->
+                        <div class="w-full h-64 sm:h-80 border-2 border-solid border-slate-300 rounded-lg bg-white relative overflow-hidden shadow-inner cursor-crosshair">
+                            <canvas id="blueprintCanvas" class="absolute inset-0 w-full h-full z-10 touch-none"></canvas>
+                            <button id="clearCanvasBtn" class="absolute top-2 right-2 z-20 bg-slate-100 text-slate-600 hover:bg-rose-100 hover:text-rose-600 px-3 py-1 rounded text-xs font-bold transition-colors shadow border border-slate-200">
+                                <i class="fa-solid fa-eraser"></i> Hapus
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Footer Biru Bawah (Navigasi) -->
+            <div class="bg-gradient-to-r from-blue-700 to-[#0284c7] px-6 py-3 shadow-[0_-4px_10px_rgba(0,0,0,0.1)] z-20 shrink-0 flex justify-between items-center">
+                <button onclick="prevPage()" class="text-white hover:text-yellow-300 font-bold text-[11px] sm:text-xs px-2 py-2 flex items-center gap-2 transition-colors">
+                    <i class="fa-solid fa-chevron-left"></i> KEMBALI TAHAP 2
+                </button>
+                <div class="flex gap-2">
+                    <button onclick="alert('Data & Sketsa berhasil disimpan!')" class="bg-emerald-500 text-white font-bold text-[11px] sm:text-xs px-4 py-2 rounded-full hover:bg-emerald-400 hover:scale-105 shadow-sm transition-all flex items-center gap-2">
+                        <i class="fa-solid fa-floppy-disk"></i> SIMPAN
+                    </button>
+                    <button onclick="nextPage()" class="bg-yellow-400 text-[#1e3a8a] font-bold text-[11px] sm:text-xs px-4 py-2 rounded-full hover:bg-yellow-300 hover:scale-105 shadow-sm transition-all flex items-center gap-2">
+                        LANJUT TAHAP 4 <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ================= HALAMAN 4: TRY ================= -->
+        <div class="page bg-[#f8fafc]" id="page-4">
+            
+            <!-- Header Biru Atas -->
+            <div class="bg-gradient-to-r from-blue-700 to-[#0284c7] px-6 pt-6 pb-4 shadow-md z-20 shrink-0 border-b-4 border-yellow-400">
+                <h2 class="text-white font-black text-xl sm:text-2xl drop-shadow-md tracking-wide">
+                    TAHAP 4: <span class="text-yellow-300">TRY</span>
+                </h2>
+                <p class="text-blue-100 text-[10px] sm:text-xs font-semibold">(Konstruksi & Perakitan Prototipe)</p>
+            </div>
+
+            <!-- Area Konten Kertas Tengah (Grid 2 Kolom untuk Desktop) -->
+            <div class="flex-1 overflow-y-auto p-4 sm:p-6 z-10 custom-scrollbar">
+                <div class="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    
+                    <!-- KOLOM KIRI -->
+                    <div class="space-y-6">
+                        <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg shadow-sm text-sm text-blue-900 leading-relaxed">
+                            <p>Saatnya mewujudkan desain kalian ke dunia nyata! Perhatikan kembali <em>Blueprint</em> yang telah kalian buat di Tahap 3, lalu rakitlah komponen prototipe kalian dengan presisi.</p>
+                        </div>
+
+                        <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+                            <h3 class="font-bold text-[#1e3a8a] text-lg mb-3 flex items-center gap-2 border-b pb-2">
+                                <i class="fa-solid fa-magnifying-glass text-blue-500"></i> 1. Tinjauan Cetak Biru
+                            </h3>
+                            <p class="text-xs text-slate-600 mb-3">Berikut adalah sketsa rancangan yang telah kalian buat sebelumnya:</p>
+                            
+                            <div class="w-full h-64 bg-slate-50 border border-slate-300 rounded-lg flex items-center justify-center overflow-hidden relative shadow-inner">
+                                <canvas id="blueprintReviewCanvas" class="w-full h-full object-contain"></canvas>
+                                <div id="reviewEmptyState" class="absolute inset-0 flex flex-col items-center justify-center text-slate-400 pointer-events-none transition-opacity duration-300">
+                                    <i class="fa-regular fa-image text-4xl mb-2"></i>
+                                    <p class="text-xs text-center px-4">Sketsa belum dibuat di Tahap 3</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- KOLOM KANAN -->
+                    <div class="space-y-6">
+                        <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+                            <h3 class="font-bold text-[#1e3a8a] text-lg mb-3 flex items-center gap-2 border-b pb-2">
+                                <i class="fa-solid fa-clipboard-check text-emerald-500"></i> 2. Quality Control (QC) & K3
+                            </h3>
+                            <p class="text-xs sm:text-sm text-slate-600 mb-4">Pastikan prototipe kalian lolos inspeksi keamanan berikut. <strong>Centang jika sudah sesuai:</strong></p>
+                            
+                            <div class="space-y-3">
+                                <label class="flex items-start gap-3 cursor-pointer group"><input type="checkbox" class="w-5 h-5 mt-1 border-2 border-slate-400 rounded text-emerald-500 focus:ring-emerald-500 transition-all cursor-pointer"><span class="text-xs sm:text-sm text-slate-700 leading-tight"><strong class="text-slate-800">Integritas Bodi:</strong> Lubang sirkulasi air sudah dibuat sesuai ukuran.</span></label>
+                                <label class="flex items-start gap-3 cursor-pointer group"><input type="checkbox" class="w-5 h-5 mt-1 border-2 border-slate-400 rounded text-emerald-500 focus:ring-emerald-500 transition-all cursor-pointer"><span class="text-xs sm:text-sm text-slate-700 leading-tight"><strong class="text-slate-800">Keseimbangan:</strong> Pemberat (koin) direkatkan dengan kuat.</span></label>
+                                <label class="flex items-start gap-3 cursor-pointer group"><input type="checkbox" class="w-5 h-5 mt-1 border-2 border-slate-400 rounded text-emerald-500 focus:ring-emerald-500 transition-all cursor-pointer"><span class="text-xs sm:text-sm text-slate-700 leading-tight"><strong class="text-rose-600">K3 (Keselamatan Kerja):</strong> Tangan perakit dan bagian dalam botol dipastikan KERING sebelum tablet masuk!</span></label>
+                            </div>
+                        </div>
+
+                        <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+                            <h3 class="font-bold text-[#1e3a8a] text-lg mb-3 flex items-center gap-2 border-b pb-2">
+                                <i class="fa-solid fa-camera text-purple-500"></i> 3. Bukti Fisik Prototipe
+                            </h3>
+                            <div class="border-2 border-dashed border-blue-300 rounded-xl p-6 text-center hover:bg-blue-50 transition-colors cursor-pointer relative group overflow-hidden">
+                                <input type="file" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" accept="image/*" onchange="previewImage(this)">
+                                <div id="uploadPlaceholder" class="relative z-0">
+                                    <i class="fa-solid fa-cloud-arrow-up text-4xl text-blue-400 mb-2 group-hover:text-blue-600 transition-colors transform duration-300"></i>
+                                    <p class="text-sm font-bold text-blue-800">Unggah Foto Prototipe.jpg</p>
+                                    <p class="text-xs text-slate-500 mt-1">Klik untuk memilih gambar</p>
+                                </div>
+                                <div id="imagePreviewContainer" class="hidden absolute inset-0 bg-white z-0 flex items-center justify-center p-2">
+                                    <img id="imagePreview" src="" alt="Preview" class="max-h-full max-w-full object-contain rounded">
+                                    <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                        <p class="text-white font-bold text-sm drop-shadow-md"><i class="fa-solid fa-pen mr-1"></i>Ganti Foto</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-gradient-to-r from-blue-700 to-[#0284c7] px-6 py-3 shadow-[0_-4px_10px_rgba(0,0,0,0.1)] z-20 shrink-0 flex justify-between items-center">
+                <button onclick="checkUnsavedAndNavigate(prevPage)" class="text-white hover:text-yellow-300 font-bold text-[11px] sm:text-xs px-2 py-2 flex items-center gap-2 transition-colors">
+                    <i class="fa-solid fa-chevron-left"></i> KEMBALI TAHAP 3
+                </button>
+                <div class="flex gap-2">
+                    <button onclick="saveData()" class="bg-emerald-500 text-white font-bold text-[11px] sm:text-xs px-4 py-2 rounded-full hover:bg-emerald-400 hover:scale-105 shadow-sm transition-all flex items-center gap-2">
+                        <i class="fa-solid fa-floppy-disk"></i> SIMPAN
+                    </button>
+                    <button onclick="checkUnsavedAndNavigate(nextPage)" class="bg-yellow-400 text-[#1e3a8a] font-bold text-[11px] sm:text-xs px-4 py-2 rounded-full hover:bg-yellow-300 hover:scale-105 shadow-sm transition-all flex items-center gap-2">
+                        LANJUT TEST <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- ================= HALAMAN 5: TEST ================= -->
+        <div class="page bg-[#f8fafc]" id="page-5">
+            
+            <!-- Header Biru Atas -->
+            <div class="bg-gradient-to-r from-blue-700 to-[#0284c7] px-6 pt-6 pb-4 shadow-md z-20 shrink-0 border-b-4 border-yellow-400">
+                <h2 class="text-white font-black text-xl sm:text-2xl drop-shadow-md tracking-wide">
+                    TAHAP 5: <span class="text-yellow-300">TEST</span>
+                </h2>
+                <p class="text-blue-100 text-[10px] sm:text-xs font-semibold">(Uji Coba Lapangan & Perekaman Data)</p>
+            </div>
+
+            <!-- Area Konten Kertas Tengah -->
+            <div class="flex-1 overflow-y-auto p-4 sm:p-6 z-10 custom-scrollbar">
+                <div class="max-w-4xl mx-auto space-y-6">
+                    
+                    <!-- Petunjuk -->
+                    <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg shadow-sm text-sm text-blue-900 leading-relaxed">
+                        <p>Uji prototipe kalian menggunakan Dasbor Instrumen di bawah ini. Pastikan orientasi botol tegak lurus saat dicelupkan. Tentukan pengujian ke berapa, lalu tekan mulai!</p>
+                    </div>
+
+                    <!-- Panel Instrumen Waktu -->
+                    <div class="bg-slate-800 rounded-xl p-5 sm:p-6 shadow-lg relative overflow-hidden">
+                        <div class="absolute -right-4 -bottom-4 opacity-10 pointer-events-none">
+                            <i class="fa-solid fa-stopwatch text-8xl text-white"></i>
+                        </div>
+
+                        <div class="relative z-10">
+                            <h3 class="text-sky-300 font-bold text-sm mb-4 flex items-center gap-2 border-b border-slate-700 pb-2">
+                                <i class="fa-solid fa-gauge-high"></i> PANEL INSTRUMEN WAKTU
+                            </h3>
+                            
+                            <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+                                <!-- Pemilih Target -->
+                                <div class="bg-slate-700/50 p-3 rounded-lg border border-slate-600 w-full md:w-auto">
+                                    <p class="text-xs text-slate-300 mb-2 font-semibold">Pilih target perekaman data:</p>
+                                    <div class="flex flex-col gap-2">
+                                        <label class="flex items-center gap-2 cursor-pointer">
+                                            <input type="radio" name="testRun" value="uji1" class="text-sky-500 focus:ring-sky-500 bg-slate-800 border-slate-600 cursor-pointer" checked>
+                                            <span class="text-sm text-white font-medium">Uji Coba 1</span>
+                                        </label>
+                                        <label class="flex items-center gap-2 cursor-pointer">
+                                            <input type="radio" name="testRun" value="uji2" class="text-sky-500 focus:ring-sky-500 bg-slate-800 border-slate-600 cursor-pointer">
+                                            <span class="text-sm text-white font-medium">Uji Coba 2</span>
+                                        </label>
+                                        <label class="flex items-center gap-2 cursor-pointer">
+                                            <input type="radio" name="testRun" value="final" class="text-emerald-500 focus:ring-emerald-500 bg-slate-800 border-slate-600 cursor-pointer">
+                                            <span class="text-sm text-emerald-400 font-bold drop-shadow-md">Uji Final</span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <!-- Tampilan Stopwatch -->
+                                <div class="flex flex-col items-center">
+                                    <div class="bg-black/50 border-2 border-slate-600 rounded-lg px-6 py-3 mb-4 shadow-inner">
+                                        <span id="stopwatchDisplay" class="font-mono text-4xl sm:text-5xl font-bold text-white tracking-wider" style="text-shadow: 0 0 15px rgba(56, 189, 248, 0.6);">00:00.00</span>
+                                    </div>
+                                    
+                                    <div class="flex gap-2 w-full justify-center">
+                                        <button id="startTimerBtn" onclick="startTimer()" class="flex-1 sm:flex-none bg-sky-600 hover:bg-sky-500 text-white font-bold py-2 px-4 rounded shadow-[0_4px_0_#0284c7] active:shadow-[0_0px_0_#0284c7] active:translate-y-1 transition-all flex items-center justify-center gap-2">
+                                            <i class="fa-solid fa-play"></i> MULAI
+                                        </button>
+                                        <button id="stopTimerBtn" onclick="stopTimer()" class="flex-1 sm:flex-none bg-rose-600 hover:bg-rose-500 text-white font-bold py-2 px-4 rounded shadow-[0_4px_0_#e11d48] active:shadow-[0_0px_0_#e11d48] active:translate-y-1 transition-all flex items-center justify-center gap-2 opacity-50 pointer-events-none">
+                                            <i class="fa-solid fa-stop"></i> STOP & SIMPAN
+                                        </button>
+                                        <button id="resetTimerBtn" onclick="resetTimer()" class="bg-slate-600 hover:bg-slate-500 text-white font-bold py-2 px-3 rounded shadow-md transition-colors" title="Reset Waktu">
+                                            <i class="fa-solid fa-rotate-right"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tabel Catatan Pengujian -->
+                    <div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+                        <div class="p-4 bg-slate-50 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                            <h3 class="font-bold text-[#1e3a8a] flex items-center gap-2">
+                                <i class="fa-solid fa-table-list text-amber-500"></i> Tabel Catatan Pengujian
+                            </h3>
+                            <span class="text-[10px] sm:text-xs bg-sky-100 text-sky-800 px-2 py-1 rounded font-semibold flex items-center gap-1 w-fit border border-sky-200">
+                                <i class="fa-solid fa-lock text-sky-600"></i> Waktu Terkunci
+                            </span>
+                        </div>
+                        
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm text-left">
+                                <thead class="text-xs text-slate-700 uppercase bg-slate-100 border-b border-slate-200">
+                                    <tr>
+                                        <th class="px-4 py-3 text-center w-16">Uji</th>
+                                        <th class="px-4 py-3 min-w-[200px]">Modifikasi Fisik Tablet</th>
+                                        <th class="px-4 py-3 w-36">Waktu Mengapung</th>
+                                        <th class="px-4 py-3 w-40">Orientasi Naik</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="border-b border-slate-100 hover:bg-slate-50 transition-colors" id="row-uji1">
+                                        <td class="px-4 py-3 text-center font-black text-slate-500">1</td>
+                                        <td class="px-4 py-2"><input type="text" class="w-full bg-transparent border-b border-slate-300 focus:border-blue-500 focus:ring-0 px-1 py-1 text-sm outline-none" placeholder="Contoh: Dibiarkan utuh"></td>
+                                        <td class="px-4 py-2"><input type="text" id="time-uji1" class="w-full bg-slate-100 border border-slate-200 rounded px-2 py-1.5 text-center font-mono font-bold text-sky-700 pointer-events-none shadow-inner" placeholder="Auto-Fill" readonly tabindex="-1"></td>
+                                        <td class="px-4 py-2"><select class="w-full bg-white border border-slate-300 rounded px-2 py-1 focus:border-blue-500 outline-none text-sm"><option value="" disabled selected>Pilih...</option><option value="tegak">Tegak Lurus</option><option value="miring">Miring</option><option value="terbalik">Terbalik</option></select></td>
+                                    </tr>
+                                    <tr class="border-b border-slate-100 hover:bg-slate-50 transition-colors" id="row-uji2">
+                                        <td class="px-4 py-3 text-center font-black text-slate-500">2</td>
+                                        <td class="px-4 py-2"><input type="text" class="w-full bg-transparent border-b border-slate-300 focus:border-blue-500 focus:ring-0 px-1 py-1 text-sm outline-none" placeholder="Contoh: Dibelah dua"></td>
+                                        <td class="px-4 py-2"><input type="text" id="time-uji2" class="w-full bg-slate-100 border border-slate-200 rounded px-2 py-1.5 text-center font-mono font-bold text-sky-700 pointer-events-none shadow-inner" placeholder="Auto-Fill" readonly tabindex="-1"></td>
+                                        <td class="px-4 py-2"><select class="w-full bg-white border border-slate-300 rounded px-2 py-1 focus:border-blue-500 outline-none text-sm"><option value="" disabled selected>Pilih...</option><option value="tegak">Tegak Lurus</option><option value="miring">Miring</option><option value="terbalik">Terbalik</option></select></td>
+                                    </tr>
+                                    <tr class="bg-emerald-50/50 hover:bg-emerald-100 transition-colors" id="row-final">
+                                        <td class="px-4 py-3 text-center font-black text-emerald-700">Final</td>
+                                        <td class="px-4 py-2"><input type="text" class="w-full bg-transparent border-b border-emerald-300 focus:border-emerald-500 focus:ring-0 px-1 py-1 text-sm outline-none text-emerald-900" placeholder="Modifikasi paling berhasil"></td>
+                                        <td class="px-4 py-2"><input type="text" id="time-final" class="w-full bg-white border border-emerald-300 rounded px-2 py-1.5 text-center font-mono font-bold text-emerald-700 pointer-events-none shadow-inner" placeholder="Auto-Fill" readonly tabindex="-1"></td>
+                                        <td class="px-4 py-2"><select class="w-full bg-white border border-emerald-300 text-emerald-900 font-semibold rounded px-2 py-1 focus:border-emerald-500 outline-none text-sm"><option value="" disabled selected>Pilih...</option><option value="tegak">Tegak Lurus</option><option value="miring">Miring</option><option value="terbalik">Terbalik</option></select></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Footer Biru Bawah (Navigasi) -->
+            <div class="bg-gradient-to-r from-blue-700 to-[#0284c7] px-6 py-3 shadow-[0_-4px_10px_rgba(0,0,0,0.1)] z-20 shrink-0 flex justify-between items-center">
+                <button onclick="checkUnsavedAndNavigate(prevPage)" class="text-white hover:text-yellow-300 font-bold text-[11px] sm:text-xs px-2 py-2 flex items-center gap-2 transition-colors">
+                    <i class="fa-solid fa-chevron-left"></i> KEMBALI TAHAP 4
+                </button>
+                <div class="flex gap-2">
+                    <button onclick="saveData()" class="bg-emerald-500 text-white font-bold text-[11px] sm:text-xs px-4 py-2 rounded-full hover:bg-emerald-400 hover:scale-105 shadow-sm transition-all flex items-center gap-2">
+                        <i class="fa-solid fa-floppy-disk"></i> SIMPAN
+                    </button>
+                    <button onclick="checkUnsavedAndNavigate(nextPage)" class="bg-yellow-400 text-[#1e3a8a] font-bold text-[11px] sm:text-xs px-4 py-2 rounded-full hover:bg-yellow-300 hover:scale-105 shadow-sm transition-all flex items-center gap-2">
+                        LANJUT TAHAP 6 <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- ================= HALAMAN 6: DECIDE ================= -->
+        <div class="page bg-[#f8fafc]" id="page-6">
+            
+            <!-- Header Biru Atas -->
+            <div class="bg-gradient-to-r from-blue-700 to-[#0284c7] px-6 pt-6 pb-4 shadow-md z-20 shrink-0 border-b-4 border-yellow-400">
+                <h2 class="text-white font-black text-xl sm:text-2xl drop-shadow-md tracking-wide">
+                    TAHAP 6: <span class="text-yellow-300">DECIDE</span>
+                </h2>
+                <p class="text-blue-100 text-[10px] sm:text-xs font-semibold">(Laporan Kelayakan - Analisis)</p>
+            </div>
+
+            <!-- Area Konten Kertas Tengah (Bisa Di-scroll) -->
+            <div class="flex-1 overflow-y-auto p-4 sm:p-6 z-10 custom-scrollbar">
+                <div class="max-w-4xl mx-auto space-y-6">
+                    
+                    <!-- Petunjuk -->
+                    <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg shadow-sm text-sm text-blue-900 leading-relaxed">
+                        <p>Sebagai tim konsultan, kalian harus mengevaluasi alat yang telah dibuat dan membuktikannya secara matematis sebelum diserahkan kepada klien.</p>
+                    </div>
+
+                    <!-- ================= ZONA ATAS: MEJA KERJA INSINYUR ================= -->
+                    
+                    <!-- 1. Evaluasi Rekayasa -->
+                    <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+                        <h3 class="font-bold text-[#1e3a8a] text-lg mb-3 flex items-center gap-2 border-b pb-2">
+                            <i class="fa-solid fa-wrench text-amber-500"></i> 1. Evaluasi Rekayasa <span class="font-normal text-sm italic text-slate-500 ml-1">(Engineering)</span>
+                        </h3>
+                        <p class="text-xs sm:text-sm text-slate-700 leading-relaxed mb-3">Sistem pelampung sering kali gagal pada uji coba pertama. Kendala mekanis apa yang paling memengaruhi kegagalan (misal: terlalu cepat, gas bocor, atau terbalik) pada prototipe awal kalian? <strong>Modifikasi apa yang akhirnya menstabilkan sistem di uji coba final?</strong></p>
+                        
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Catatan Perbaikan Teknik:</label>
+                        <textarea rows="3" class="w-full bg-slate-50 border border-slate-300 rounded p-3 text-sm focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none resize-none shadow-inner" placeholder="Jelaskan masalah dan solusi teknisnya..."></textarea>
+                    </div>
+
+                    <!-- 2. Bukti Stoikiometri -->
+                    <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+                        <h3 class="font-bold text-[#1e3a8a] text-lg mb-3 flex items-center gap-2 border-b pb-2">
+                            <i class="fa-solid fa-square-root-variable text-emerald-500"></i> 2. Bukti Stoikiometri <span class="font-normal text-sm italic text-slate-500 ml-1">(Math & Chemistry Evidence)</span>
+                        </h3>
+                        <p class="text-xs sm:text-sm text-slate-700 leading-relaxed mb-3">Klien membutuhkan kepastian bahwa sistem ini terukur, bukan sekadar kebetulan. Lakukan pembuktian pada desain final kalian:</p>
+                        
+                        <div class="bg-slate-800 text-emerald-400 font-mono text-center p-3 rounded-lg overflow-x-auto whitespace-nowrap shadow-inner border border-slate-700 text-sm mb-5">
+                            3NaHCO<sub>3(aq)</sub> + C<sub>6</sub>H<sub>8</sub>O<sub>7(aq)</sub> &rarr; Na<sub>3</sub>C<sub>6</sub>H<sub>5</sub>O<sub>7(aq)</sub> + 3H<sub>2</sub>O<sub>(l)</sub> + 3CO<sub>2(g)</sub>
+                        </div>
+
+                        <div class="space-y-4">
+                            <!-- Bagian A -->
+                            <div class="bg-slate-50 border border-slate-200 p-4 rounded-lg">
+                                <h4 class="font-bold text-slate-800 text-sm mb-2">A. Perhitungan Mol Reaktan</h4>
+                                <p class="text-xs sm:text-sm text-slate-600 mb-3">Jika pada desain final kalian menggunakan tablet yang setara dengan <strong>1,68 gram NaHCO<sub>3</sub></strong>, hitunglah mol zat tersebut! <em class="text-slate-500">(Diketahui Ar Na=23, H=1, C=12, O=16)</em></p>
+                                <div class="flex flex-col gap-2 font-mono text-sm font-semibold text-slate-800">
+                                    <div class="flex items-center gap-2">
+                                        <span>Mr NaHCO<sub>3</sub> =</span>
+                                        <input type="number" class="w-16 bg-transparent border-b-2 border-slate-400 focus:border-blue-500 outline-none text-center text-blue-700" placeholder="...">
+                                    </div>
+                                    <div class="flex items-center gap-2 mt-2">
+                                        <span>Mol =</span>
+                                        <div class="inline-flex flex-col items-center align-middle mx-1 text-xs">
+                                            <span class="border-b-2 border-slate-600 px-1">Massa</span>
+                                            <span>Mr</span>
+                                        </div>
+                                        <span>=</span>
+                                        <input type="number" step="0.01" class="w-20 bg-transparent border-b-2 border-slate-400 focus:border-blue-500 outline-none text-center text-blue-700" placeholder="...">
+                                        <span>mol.</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Bagian B -->
+                            <div class="bg-slate-50 border border-slate-200 p-4 rounded-lg">
+                                <h4 class="font-bold text-slate-800 text-sm mb-2">B. Volume Gas Pendorong (CO<sub>2</sub>)</h4>
+                                <p class="text-xs sm:text-sm text-slate-600 mb-3">Berdasarkan rasio koefisien reaksi di atas (3:3), tentukan mol gas CO<sub>2</sub>. Kemudian, hitung Volume teoritisnya pada keadaan ruang (RTP, di mana 1 mol = 24 Liter)! <em class="text-slate-500">(Nyatakan hasil dalam satuan mL)</em></p>
+                                <div class="flex flex-col gap-2 font-mono text-sm font-semibold text-slate-800">
+                                    <div class="flex items-center gap-2">
+                                        <span>Mol CO<sub>2</sub> =</span>
+                                        <input type="number" step="0.01" class="w-20 bg-transparent border-b-2 border-slate-400 focus:border-emerald-500 outline-none text-center text-emerald-700" placeholder="...">
+                                        <span>mol.</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span>Volume CO<sub>2</sub> =</span>
+                                        <input type="number" class="w-24 bg-transparent border-b-2 border-slate-400 focus:border-emerald-500 outline-none text-center text-emerald-700" placeholder="...">
+                                        <span>mL.</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Bagian C -->
+                            <div class="bg-slate-50 border border-slate-200 p-4 rounded-lg">
+                                <h4 class="font-bold text-slate-800 text-sm mb-2">C. Kecepatan Sistem (Laju Reaksi Rata-Rata)</h4>
+                                <p class="text-xs sm:text-sm text-slate-600 mb-3">Gunakan Volume Gas (Hasil B) dan bagikan dengan <strong>Waktu Mengapung Final</strong> (dari Tabel Pengujian di Tahap 5).</p>
+                                <div class="flex items-center gap-2 font-mono text-sm font-semibold text-slate-800">
+                                    <span>v =</span>
+                                    <div class="inline-flex flex-col items-center align-middle mx-1 text-xs">
+                                        <span class="border-b-2 border-slate-600 px-1">&Delta; V</span>
+                                        <span>&Delta; t</span>
+                                    </div>
+                                    <span>=</span>
+                                    <input type="number" step="0.01" class="w-24 bg-transparent border-b-2 border-slate-400 focus:border-purple-500 outline-none text-center text-purple-700" placeholder="...">
+                                    <span>mL/detik.</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ================= ZONA BAWAH: DOKUMEN RESMI ================= -->
+                    <div class="mt-8 bg-[#fffbeb] border-8 border-double border-[#b45309] rounded-xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
+                        <!-- Watermark Logo -->
+                        <div class="absolute inset-0 flex items-center justify-center opacity-[0.03] pointer-events-none z-0">
+                            <i class="fa-solid fa-scale-balanced text-[15rem]"></i>
+                        </div>
+
+                        <!-- STEMPEL APPROVED ANIMASI -->
+                        <div id="approvedStamp" class="absolute inset-0 flex items-center justify-center pointer-events-none z-20 opacity-0 scale-50 transition-all duration-500 ease-out">
+                            <div class="border-4 border-emerald-600 text-emerald-600 rounded-lg px-6 py-2 transform -rotate-12 bg-white/80 backdrop-blur-sm shadow-xl">
+                                <p class="font-black text-4xl sm:text-6xl tracking-widest uppercase" style="font-family: 'Courier New', Courier, monospace;">APPROVED</p>
+                                <p class="font-bold text-center text-sm sm:text-base tracking-widest border-t-2 border-emerald-600 mt-1 pt-1">BALAI EKOLOGI NUSANTARA</p>
+                            </div>
+                        </div>
+
+                        <div class="relative z-10">
+                            <!-- Judul Dokumen -->
+                            <div class="text-center border-b-2 border-[#b45309] pb-4 mb-6">
+                                <h2 class="font-serif font-black text-xl sm:text-2xl text-[#78350f] uppercase tracking-widest">Keputusan Final (Decide)</h2>
+                                <p class="text-[#92400e] font-semibold text-xs sm:text-sm tracking-wide mt-1">KOMUNIKASI KLIEN & KEPUTUSAN FINAL</p>
+                            </div>
+
+                            <!-- 1. Executive Summary -->
+                            <div class="mb-6">
+                                <h3 class="font-bold text-[#78350f] text-sm sm:text-base mb-2">1. Pemaparan Solusi <span class="italic font-normal">(Executive Summary)</span></h3>
+                                <p class="text-xs sm:text-sm text-[#92400e] mb-2 leading-relaxed">Yakinkan klien (Balai Ekologi Nusantara) mengapa mereka harus menggunakan desain buatan kalian! Gunakan bukti dari Halaman 5 (seperti takaran reaktan dan laju reaksi) untuk menjelaskan mengapa wahana kalian bisa menunda waktu tepat selama ~30 detik tanpa meledak.</p>
+                                <textarea rows="4" class="w-full bg-white/60 border border-[#d97706] rounded p-3 text-sm focus:border-[#78350f] focus:ring-1 focus:ring-[#78350f] outline-none resize-none shadow-inner text-[#451a03]" placeholder="Tuliskan pemaparan elegan kepada klien..."></textarea>
+                            </div>
+
+                            <!-- 2. Deklarasi -->
+                            <div class="mb-6">
+                                <h3 class="font-bold text-[#78350f] text-sm sm:text-base mb-3">2. Deklarasi Final</h3>
+                                <p class="text-xs sm:text-sm text-[#92400e] mb-3">Pilih salah satu status kelayakan desain kalian:</p>
+                                
+                                <div class="flex flex-col gap-3 mb-4 relative z-30">
+                                    <label class="flex items-center gap-3 p-3 border border-[#d97706] rounded bg-white/50 cursor-pointer hover:bg-white transition-colors group">
+                                        <input type="radio" name="kelayakan" value="layak" onchange="toggleStamp(this.value)" class="w-5 h-5 text-emerald-600 focus:ring-emerald-500 border-slate-400">
+                                        <span class="text-sm font-bold text-[#78350f] group-hover:text-emerald-700 transition-colors">LAYAK <span class="font-normal text-xs text-[#92400e] block sm:inline sm:ml-1">(Memenuhi target 28-32 detik & tegak lurus)</span></span>
+                                    </label>
+                                    <label class="flex items-center gap-3 p-3 border border-[#d97706] rounded bg-white/50 cursor-pointer hover:bg-white transition-colors group">
+                                        <input type="radio" name="kelayakan" value="tidak_layak" onchange="toggleStamp(this.value)" class="w-5 h-5 text-rose-600 focus:ring-rose-500 border-slate-400">
+                                        <span class="text-sm font-bold text-[#78350f] group-hover:text-rose-700 transition-colors">TIDAK LAYAK / PERLU REVISI <span class="font-normal text-xs text-[#92400e] block sm:inline sm:ml-1">(Gagal memenuhi target waktu/orientasi)</span></span>
+                                    </label>
+                                </div>
+
+                                <div class="bg-white/60 border border-[#d97706] p-4 rounded-lg text-xs sm:text-sm text-[#78350f] leading-relaxed italic text-center relative z-30">
+                                    "Kami dari Tim Insinyur Kimia & Material <input type="text" class="bg-transparent border-b-2 border-[#78350f] focus:outline-none focus:border-blue-600 px-2 w-32 md:w-48 text-center font-bold" placeholder="[Nama Kelompok]"> menyatakan secara sadar dan ilmiah bahwa desain Sistem Ballast Kimia Otomatis kami berstatus seperti yang dipilih di atas, untuk diimplementasikan pada wahana riset Balai Ekologi Nusantara."
+                                </div>
+                            </div>
+
+                            <!-- Tanda Tangan -->
+                            <div class="flex justify-end mt-8 relative z-30">
+                                <div class="text-center w-48">
+                                    <p class="text-xs font-bold text-[#78350f] mb-8">(Tanda Tangan Ketua Tim)</p>
+                                    <input type="text" class="w-full bg-transparent border-b-2 border-[#78350f] focus:outline-none text-center font-bold text-xl text-blue-800" style="font-family: 'Brush Script MT', cursive, 'Times New Roman';" placeholder="...">
+                                    <p class="text-[10px] text-[#92400e] mt-1">Ketik nama sebagai TTD elektronik</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ================= TOMBOL GENERATE PDF ================= -->
+                    <div class="bg-slate-900 border-t-4 border-sky-500 rounded-xl p-6 text-center shadow-xl mt-8">
+                        <h3 class="text-white font-bold text-lg mb-2"><i class="fa-solid fa-file-pdf text-rose-500 mr-2 text-2xl align-middle"></i> GENERATE LAPORAN REKAYASA</h3>
+                        <p class="text-slate-400 text-xs sm:text-sm mb-5 max-w-2xl mx-auto">Pastikan seluruh data dari Tahap 1 hingga Tahap 6 telah terisi dengan benar. Klik tombol di bawah ini untuk mengunduh rekam jejak Engineering Design Process kelompok kalian sebagai laporan resmi.</p>
+                        
+                        <button onclick="generatePDF()" class="bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 text-white font-black text-sm sm:text-base px-8 py-3 rounded-full shadow-[0_5px_15px_rgba(2,132,199,0.4)] hover:shadow-[0_8px_25px_rgba(2,132,199,0.6)] transform hover:-translate-y-1 transition-all">
+                            <i class="fa-solid fa-print mr-2"></i> CETAK / UNDUH LAPORAN (PDF)
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Footer Biru Bawah (Navigasi) -->
+            <div class="bg-gradient-to-r from-blue-700 to-[#0284c7] px-6 py-3 shadow-[0_-4px_10px_rgba(0,0,0,0.1)] z-20 shrink-0 flex justify-between items-center">
+                <button onclick="checkUnsavedAndNavigate(prevPage)" class="text-white hover:text-yellow-300 font-bold text-[11px] sm:text-xs px-2 py-2 flex items-center gap-2 transition-colors">
+                    <i class="fa-solid fa-chevron-left"></i> KEMBALI TAHAP 5
+                </button>
+                <button onclick="finishProject()" class="bg-emerald-500 text-white font-bold text-[11px] sm:text-xs px-6 py-2 rounded-full hover:bg-emerald-400 hover:scale-105 shadow-sm transition-all flex items-center gap-2">
+                    <i class="fa-solid fa-check-double"></i> SIMPAN & SELESAI
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Javascript untuk Navigasi Halaman (Slide Animation) -->
+    <script>
+        let currentPageIndex = 0;
+        const pages = document.querySelectorAll('.page');
+
+        // ==========================================
+        // FITUR PERINGATAN DATA BELUM DISIMPAN
+        // ==========================================
+        let unsavedChanges = false;
+
+        // Deteksi jika user mengetik di form input / textarea manapun
+        document.addEventListener('input', (e) => {
+            if (e.target.tagName.toLowerCase() === 'input' || e.target.tagName.toLowerCase() === 'textarea') {
+                unsavedChanges = true;
+            }
+        });
+
+        function saveData(msg = 'Data berhasil disimpan!') {
+            unsavedChanges = false; // Reset status peringatan
+            alert(msg);
+        }
+
+        function checkUnsavedAndNavigate(action) {
+            if (unsavedChanges) {
+                if (!confirm('Peringatan: Anda memiliki data/sketsa yang belum disimpan!\n\nKlik "OK" jika ingin tetap pindah halaman tanpa menyimpan.')) {
+                    return; // Batalkan perpindahan halaman
+                }
+            }
+            unsavedChanges = false; // Bersihkan status agar tidak ditanya terus-menerus
+            action();
+        }
+
+        function startMisi() { unsavedChanges = false; nextPage(); } // Khusus tombol dari halaman cover
+
+        function updatePages() {
+            pages.forEach((page, index) => {
+                // Hapus state lama
+                page.classList.remove('active', 'prev-page');
+                
+                if (index === currentPageIndex) {
+                    // Halaman yang sedang aktif
+                    page.classList.add('active');
+                    if (page.id === 'page-3') {
+                        setTimeout(resizeCanvas, 400); 
+                    }
+                    if (page.id === 'page-4') {
+                        setTimeout(() => {
+                            const sourceCanvas = document.getElementById('blueprintCanvas');
+                            const destCanvas = document.getElementById('blueprintReviewCanvas');
+                            if(sourceCanvas && destCanvas) {
+                                const destCtx = destCanvas.getContext('2d');
+                                destCanvas.width = sourceCanvas.width;
+                                destCanvas.height = sourceCanvas.height;
+                                destCtx.drawImage(sourceCanvas, 0, 0);
+                                if(typeof hasDrawn !== 'undefined' && hasDrawn) {
+                                    const emptyState = document.getElementById('reviewEmptyState');
+                                    if(emptyState) emptyState.style.opacity = '0';
+                                }
+                            }
+                        }, 400);
+                    }
+                } else if (index < currentPageIndex) {
+                    // Halaman riwayat (bergeser ke kiri)
+                    page.classList.add('prev-page');
+                }
+                // Halaman berikutnya otomatis bersembunyi di kanan sesuai CSS awal
+            });
+        }
+
+        function nextPage() {
+            if (currentPageIndex < pages.length - 1) {
+                currentPageIndex++;
+                updatePages();
+            }
+        }
+
+        function prevPage() {
+            if (currentPageIndex > 0) {
+                currentPageIndex--;
+                updatePages();
+            }
+        }
+
+        // ==========================================
+        // FITUR CANVAS DRAWING (Area Sketsa)
+        // ==========================================
+        const canvas = document.getElementById('blueprintCanvas');
+        const ctx = canvas ? canvas.getContext('2d') : null;
+        const clearBtn = document.getElementById('clearCanvasBtn');
+
+        let isDrawing = false;
+        let hasDrawn = false;
+
+        // Menyesuaikan ukuran canvas internal dengan ukuran tampilan elemen
+        function resizeCanvas() {
+            if (!canvas || !ctx) return;
+            const rect = canvas.parentElement.getBoundingClientRect();
+            if (rect.width === 0 || rect.height === 0) return;
+            // Simpan gambar yang ada sebelum resize
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = canvas.width;
+            tempCanvas.height = canvas.height;
+            tempCanvas.getContext('2d').drawImage(canvas, 0, 0);
+
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+            
+            // Kembalikan gambar dan atur ulang properti
+            ctx.drawImage(tempCanvas, 0, 0);
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+        }
+        window.addEventListener('resize', resizeCanvas);
+
+        // Mendapatkan koordinat akurat untuk Mouse maupun Touch(Jari)
+        function getCoordinates(e) {
+            const rect = canvas.getBoundingClientRect();
+            if (e.touches && e.touches.length > 0) {
+                return { x: e.touches[0].clientX - rect.left, y: e.touches[0].clientY - rect.top };
+            }
+            return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+        }
+
+        function startDrawing(e) {
+            isDrawing = true;
+            const coords = getCoordinates(e);
+            ctx.beginPath();
+            ctx.moveTo(coords.x, coords.y);
+            hasDrawn = true;
+            unsavedChanges = true; // Tandai bahwa user sedang mencoret sketsa
+            e.preventDefault(); // Mencegah layar bergeser (scroll) saat menggambar di HP
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+            const coords = getCoordinates(e);
+            ctx.lineTo(coords.x, coords.y);
+            ctx.strokeStyle = '#000000'; // Warna hitam statis
+            ctx.lineWidth = 2; // Ukuran kuas standar
+            ctx.stroke();
+            e.preventDefault();
+        }
+
+        function stopDrawing() { if (isDrawing) { ctx.closePath(); isDrawing = false; } }
+
+        // Event Listeners (Mouse & Touch)
+        if (canvas) {
+            canvas.addEventListener('mousedown', startDrawing); canvas.addEventListener('mousemove', draw); canvas.addEventListener('mouseup', stopDrawing); canvas.addEventListener('mouseout', stopDrawing);
+            canvas.addEventListener('touchstart', startDrawing, { passive: false }); canvas.addEventListener('touchmove', draw, { passive: false }); canvas.addEventListener('touchend', stopDrawing); canvas.addEventListener('touchcancel', stopDrawing);
+        }
+
+        // Fitur Tombol Hapus
+        if (clearBtn) {
+            clearBtn.addEventListener('click', () => { if (ctx) { ctx.clearRect(0, 0, canvas.width, canvas.height); hasDrawn = false; unsavedChanges = true; } });
+        }
+
+        // ==========================================
+        // FITUR PREVIEW UPLOAD FOTO (Halaman 4)
+        // ==========================================
+        function previewImage(input) {
+            const file = input.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('imagePreview').src = e.target.result;
+                    document.getElementById('imagePreviewContainer').classList.remove('hidden');
+                    document.getElementById('uploadPlaceholder').classList.add('hidden');
+                    unsavedChanges = true; // Tandai bahwa user baru saja mengunggah foto
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // ==========================================
+        // FITUR STOPWATCH PENGUJIAN (Halaman 5)
+        // ==========================================
+        let timerInterval;
+        let startTime;
+        let elapsedTime = 0;
+        let isRunning = false;
+
+        const display = document.getElementById('stopwatchDisplay');
+        const startBtn = document.getElementById('startTimerBtn');
+        const stopBtn = document.getElementById('stopTimerBtn');
+
+        function formatTime(time) {
+            let date = new Date(time);
+            let m = date.getMinutes().toString().padStart(2, '0');
+            let s = date.getSeconds().toString().padStart(2, '0');
+            let ms = Math.floor(date.getMilliseconds() / 10).toString().padStart(2, '0');
+            return `${m}:${s}.${ms}`;
+        }
+
+        function updateDisplay() {
+            elapsedTime = Date.now() - startTime;
+            display.textContent = formatTime(elapsedTime);
+        }
+
+        function startTimer() {
+            if (!isRunning) {
+                startTime = Date.now() - elapsedTime;
+                timerInterval = setInterval(updateDisplay, 10);
+                isRunning = true;
+                
+                startBtn.classList.add('opacity-50', 'pointer-events-none');
+                stopBtn.classList.remove('opacity-50', 'pointer-events-none');
+                unsavedChanges = true;
+            }
+        }
+
+        function stopTimer() {
+            if (isRunning) {
+                clearInterval(timerInterval);
+                isRunning = false;
+                
+                startBtn.classList.remove('opacity-50', 'pointer-events-none');
+                stopBtn.classList.add('opacity-50', 'pointer-events-none');
+                
+                // Ambil radio button terpilih dan auto-fill tabel
+                const selectedRun = document.querySelector('input[name="testRun"]:checked').value;
+                const timeInput = document.getElementById('time-' + selectedRun);
+                const row = document.getElementById('row-' + selectedRun);
+                
+                if (timeInput) {
+                    timeInput.value = formatTime(elapsedTime);
+                    timeInput.classList.replace('text-sky-700', 'text-amber-600');
+                    row.classList.add('bg-amber-100'); // Efek berkedip sebentar
+                    setTimeout(() => row.classList.remove('bg-amber-100'), 800);
+                }
+            }
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval);
+            isRunning = false;
+            elapsedTime = 0;
+            display.textContent = "00:00.00";
+            startBtn.classList.remove('opacity-50', 'pointer-events-none');
+            stopBtn.classList.add('opacity-50', 'pointer-events-none');
+        }
+
+        // ==========================================
+        // FITUR GENERATE PDF (Halaman 6)
+        // ==========================================
+        function generatePDF() {
+            if (unsavedChanges) {
+                alert("Peringatan: Ada data atau sketsa yang belum disimpan!\n\nSilakan klik tombol 'SIMPAN' terlebih dahulu sebelum mencetak laporan agar data Anda tidak hilang.");
+                return;
+            }
+            window.print();
+        }
+
+        // ==========================================
+        // FITUR SELESAI & KONFETI
+        // ==========================================
+        function finishProject() {
+            unsavedChanges = false; // Tandai semua sudah disimpan
+            confetti({
+                particleCount: 150,
+                spread: 80,
+                origin: { y: 0.6 },
+                zIndex: 9999
+            });
+            setTimeout(() => alert('Selamat! Semua tugas proyek pada setiap halaman telah berhasil disimpan secara permanen.'), 800);
+        }
+
+        // ==========================================
+        // FITUR STEMPEL APPROVED (Halaman 6)
+        // ==========================================
+        function toggleStamp(value) {
+            const stamp = document.getElementById('approvedStamp');
+            if (value === 'layak') {
+                stamp.classList.remove('opacity-0', 'scale-50');
+                stamp.classList.add('opacity-100', 'scale-100');
+            } else {
+                stamp.classList.add('opacity-0', 'scale-50');
+                stamp.classList.remove('opacity-100', 'scale-100');
+            }
+        }
+    </script>
+</body>
+</html>
